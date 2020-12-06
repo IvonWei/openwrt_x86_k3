@@ -1,0 +1,42 @@
+name: Build OpenWrt
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+          
+    - name: Installation depends
+      run: |
+        sudo apt-get update
+        sudo apt-get -y install build-essential ccache ecj fastjar file g++ gawk gettext git java-propose-classpath libelf-dev libncurses5-dev libncursesw5-dev libssl-dev python python2.7-dev python3 unzip wget python3-distutils python3-setuptools rsync subversion swig time xsltproc zlib1g-dev 
+        
+    - name: Clone source code
+      run: |
+        git clone https://github.com/openwrt/openwrt
+        cd openwrt
+        echo 'src-git diy1 https://github.com/xiaorouji/openwrt-passwall.git;main' >> feeds.conf.default
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+        cp ../config/x86/.config .config
+        
+    - name: Generate config file
+      run: |
+        cd openwrt
+        make defconfig
+        
+    - name: Build
+      run: |
+        cd openwrt
+        cp ../config/x86/.config .config
+        make -j$(nproc)
+        
+        cp ../config/k3/.config .config
+        make -j$(nproc)
+        
+    - name : Upload artifact
+      uses: actions/upload-artifact@master
+      with:
+        name: OpenWrt
+        path: openwrt/bin
