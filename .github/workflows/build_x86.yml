@@ -43,6 +43,8 @@ jobs:
           rm -rf lede
           cd openwrt
           echo 'src-git helloworld https://github.com/fw876/helloworld' >> feeds.conf.default
+          cp -r ../config/k3/. .
+          cat /target/linux/bcm53xx/image/Makefile
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
