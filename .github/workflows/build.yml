@@ -49,7 +49,6 @@ jobs:
       - name: Compile firmware
         run: |
           cd openwrt
-          rm .config
           cp -r ../config/x86/openwrt .config
           make -j$(nproc) || make -j1 V=s
           echo "======================="
