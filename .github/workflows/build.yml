@@ -58,7 +58,6 @@ jobs:
           echo "======================="
           du -h ./ --max-depth=1
 
-          cd openwrt
           cp ../config/k3/.config .config
           make -j$(nproc) || make -j1 V=s
           echo "======================="
