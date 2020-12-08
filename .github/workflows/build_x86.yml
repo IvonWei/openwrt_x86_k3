@@ -49,7 +49,7 @@ jobs:
       - name: Compile firmware
         run: |
           cd openwrt
-          cp -r ../config/x86/openwrt/* .
+          cp -r ../config/x86/. .
           make -j$(nproc) || make -j1 V=s
           echo "======================="
           echo "Space usage:"
@@ -58,7 +58,7 @@ jobs:
           echo "======================="
           du -h ./ --max-depth=1
 
-          cp -r ../config/k3/openwrt/* .
+          cp -r ../config/k3/. .
           make -j$(nproc) || make -j1 V=s
           echo "======================="
           echo "Space usage:"
@@ -69,36 +69,37 @@ jobs:
 
       - name: Prepare artifact
         run: |
-          mkdir -p ./artifact/firmware
-          mkdir -p ./artifact/package
-          mkdir -p ./artifact/buildinfo
-          rm -rf $(find openwrt/bin/targets/ -type d -name "packages")
-          cp -rf $(find openwrt/bin/targets/ -type f) ./artifact/firmware/
-          cp -rf $(find openwrt/bin/packages/ -type f -name "*.ipk") ./artifact/package/
-          cp -rf $(find openwrt/bin/targets/ -type f -name "*.buildinfo" -o -name "*.manifest") ./artifact/buildinfo/
-      - name: Deliver buildinfo
-        uses: actions/upload-artifact@v2
-        with:
-          name: OpenWrt_buildinfo
-          path: ./artifact/buildinfo/
+            rm -rf $(find openwrt/bin/targets/ -type d -name "packages")
+#           mkdir -p ./artifact/firmware
+#           mkdir -p ./artifact/package
+#           mkdir -p ./artifact/buildinfo
+#           cp -rf $(find openwrt/bin/targets/ -type f) ./artifact/firmware/
+#           cp -rf $(find openwrt/bin/packages/ -type f -name "*.ipk") ./artifact/package/
+#           cp -rf $(find openwrt/bin/targets/ -type f -name "*.buildinfo" -o -name "*.manifest") ./artifact/buildinfo/
+          
+#       - name: Deliver buildinfo
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: OpenWrt_buildinfo
+#           path: ./artifact/buildinfo/
 
-      - name: Deliver package
-        uses: actions/upload-artifact@v2
-        with:
-          name: OpenWrt_package
-          path: ./artifact/package/
+#       - name: Deliver package
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: OpenWrt_package
+#           path: ./artifact/package/
 
       - name: Deliver firmware
         uses: actions/upload-artifact@v2
         with:
           name: OpenWrt_firmware
-          path: ./bin/targets/
+          path: openwrt/bin/targets/
 
-      - name: Upload release asset
-        if: github.event == 'release'
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.YOURTOKEN }}
-          file: ./artifact/firmware/*
-          tag: ${{ github.ref }}
-          file_glob: true
+#       - name: Upload release asset
+#         if: github.event == 'release'
+#         uses: svenstaro/upload-release-action@v2
+#         with:
+#           repo_token: ${{ secrets.YOURTOKEN }}
+#           file: ./artifact/firmware/*
+#           tag: ${{ github.ref }}
+#           file_glob: true
