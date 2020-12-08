@@ -58,15 +58,6 @@ jobs:
           echo "======================="
           du -h ./ --max-depth=1
 
-          cp -r ../config/k3/. .
-          make -j$(nproc) || make -j1 V=s
-          echo "======================="
-          echo "Space usage:"
-          echo "======================="
-          df -h
-          echo "======================="
-          du -h ./ --max-depth=1
-
       - name: Prepare artifact
         run: |
           mkdir -p ./artifact/firmware
