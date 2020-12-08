@@ -4,39 +4,102 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@master
-          
-    - name: Installation depends
-      run: |
-        sudo apt-get update
-        sudo apt-get -y install build-essential ccache ecj fastjar file g++ gawk gettext git java-propose-classpath libelf-dev libncurses5-dev libncursesw5-dev libssl-dev python python2.7-dev python3 unzip wget python3-distutils python3-setuptools rsync subversion swig time xsltproc zlib1g-dev 
-        
-    - name: Clone source code
-      run: |
-        git clone https://github.com/openwrt/openwrt
-        cd openwrt
-        echo 'src-git diy1 https://github.com/xiaorouji/openwrt-passwall.git;main' >> feeds.conf.default
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
-        cp ../config/x86/.config .config
-        
-    - name: Generate config file
-      run: |
-        cd openwrt
-        make defconfig
-        
-    - name: Build
-      run: |
-        cd openwrt
-        cp ../config/x86/.config .config
-        make -j$(nproc)
-        
-        cp ../config/k3/.config .config
-        make -j$(nproc)
-        
-    - name : Upload artifact
-      uses: actions/upload-artifact@master
-      with:
-        name: OpenWrt
-        path: openwrt/bin
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: master
+
+      - name: Space cleanup
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          docker rmi `docker images -q`
+          sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d
+          sudo -E apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php* android*
+          sudo -E apt-get update
+          sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler antlr3 gperf swig
+          sudo -E apt-get -y autoremove --purge
+          sudo -E apt-get clean
+          df -h
+
+      - name: Clone source code
+        run: |
+          git clone https://github.com/openwrt/openwrt
+          git clone https://github.com/coolsnowwolf/lede
+          mkdir -p openwrt/package/lean
+          cp -r lede/package/lean/tcpping openwrt/package/lean/
+          cp -r lede/package/lean/shadowsocksr-libev openwrt/package/lean/
+          cp -r lede/package/lean/pdnsd-alt openwrt/package/lean/
+          cp -r lede/package/lean/v2ray openwrt/package/lean/
+          cp -r lede/package/lean/trojan openwrt/package/lean/
+          cp -r lede/package/lean/simple-obfs openwrt/package/lean/
+          cp -r lede/package/lean/v2ray-plugin openwrt/package/lean/
+          cp -r lede/package/lean/microsocks openwrt/package/lean/
+          cp -r lede/package/lean/dns2socks openwrt/package/lean/
+          cp -r lede/package/lean/redsocks2 openwrt/package/lean/
+          cp -r lede/package/lean/ipt2socks openwrt/package/lean/
+          cp -r lede/package/lean/kcptun openwrt/package/lean/
+          cp -r lede/package/lean/xray openwrt/package/lean/
+          rm -rf lede
+          cd openwrt
+          echo 'src-git helloworld https://github.com/fw876/helloworld' >> feeds.conf.default
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Compile firmware
+        run: |
+          cd openwrt
+          cp ../config/x86/.config .config
+          make -j$(nproc) || make -j1 V=s
+          echo "======================="
+          echo "Space usage:"
+          echo "======================="
+          df -h
+          echo "======================="
+          du -h ./ --max-depth=1
+
+          cd openwrt
+          cp ../config/k3/.config .config
+          make -j$(nproc) || make -j1 V=s
+          echo "======================="
+          echo "Space usage:"
+          echo "======================="
+          df -h
+          echo "======================="
+          du -h ./ --max-depth=1
+
+      - name: Prepare artifact
+        run: |
+          mkdir -p ./artifact/firmware
+          mkdir -p ./artifact/package
+          mkdir -p ./artifact/buildinfo
+          rm -rf $(find openwrt/bin/targets/ -type d -name "packages")
+          cp -rf $(find openwrt/bin/targets/ -type f) ./artifact/firmware/
+          cp -rf $(find openwrt/bin/packages/ -type f -name "*.ipk") ./artifact/package/
+          cp -rf $(find openwrt/bin/targets/ -type f -name "*.buildinfo" -o -name "*.manifest") ./artifact/buildinfo/
+      - name: Deliver buildinfo
+        uses: actions/upload-artifact@v2
+        with:
+          name: OpenWrt_buildinfo
+          path: ./artifact/buildinfo/
+
+      - name: Deliver package
+        uses: actions/upload-artifact@v2
+        with:
+          name: OpenWrt_package
+          path: ./artifact/package/
+
+      - name: Deliver firmware
+        uses: actions/upload-artifact@v2
+        with:
+          name: OpenWrt_firmware
+          path: ./bin/targets/
+
+      - name: Upload release asset
+        if: github.event == 'release'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.YOURTOKEN }}
+          file: ./artifact/firmware/*
+          tag: ${{ github.ref }}
+          file_glob: true
