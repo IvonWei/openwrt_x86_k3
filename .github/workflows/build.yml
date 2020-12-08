@@ -49,7 +49,7 @@ jobs:
       - name: Compile firmware
         run: |
           cd openwrt
-          cp -r ../config/x86/openwrt .config
+          cp -r ../config/x86/openwrt/* .
           make -j$(nproc) || make -j1 V=s
           echo "======================="
           echo "Space usage:"
@@ -58,7 +58,7 @@ jobs:
           echo "======================="
           du -h ./ --max-depth=1
 
-          cp -r ../config/k3/openwrt .
+          cp -r ../config/k3/openwrt/* .
           make -j$(nproc) || make -j1 V=s
           echo "======================="
           echo "Space usage:"
