@@ -30,10 +30,8 @@ jobs:
           cp -r lede/package/lean/tcpping openwrt/package/lean/
           cp -r lede/package/lean/shadowsocksr-libev openwrt/package/lean/
           cp -r lede/package/lean/pdnsd-alt openwrt/package/lean/
-          cp -r lede/package/lean/v2ray openwrt/package/lean/
           cp -r lede/package/lean/trojan openwrt/package/lean/
           cp -r lede/package/lean/simple-obfs openwrt/package/lean/
-          cp -r lede/package/lean/v2ray-plugin openwrt/package/lean/
           cp -r lede/package/lean/microsocks openwrt/package/lean/
           cp -r lede/package/lean/dns2socks openwrt/package/lean/
           cp -r lede/package/lean/redsocks2 openwrt/package/lean/
