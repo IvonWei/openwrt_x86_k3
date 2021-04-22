@@ -25,20 +25,21 @@ jobs:
       - name: Clone source code
         run: |
           git clone https://github.com/openwrt/openwrt
-          git clone https://github.com/coolsnowwolf/lede
-          mkdir -p openwrt/package/lean
-          cp -r lede/package/lean/tcpping openwrt/package/lean/
-          cp -r lede/package/lean/shadowsocksr-libev openwrt/package/lean/
-          cp -r lede/package/lean/pdnsd-alt openwrt/package/lean/
-          cp -r lede/package/lean/trojan openwrt/package/lean/
-          cp -r lede/package/lean/simple-obfs openwrt/package/lean/
-          cp -r lede/package/lean/microsocks openwrt/package/lean/
-          cp -r lede/package/lean/dns2socks openwrt/package/lean/
-          cp -r lede/package/lean/redsocks2 openwrt/package/lean/
-          cp -r lede/package/lean/ipt2socks openwrt/package/lean/
-          rm -rf lede
+          #git clone https://github.com/coolsnowwolf/lede
+          #mkdir -p openwrt/package/lean
+          #cp -r lede/package/lean/tcpping openwrt/package/lean/
+          #cp -r lede/package/lean/shadowsocksr-libev openwrt/package/lean/
+          #cp -r lede/package/lean/pdnsd-alt openwrt/package/lean/
+          #cp -r lede/package/lean/trojan openwrt/package/lean/
+          #cp -r lede/package/lean/simple-obfs openwrt/package/lean/
+          #cp -r lede/package/lean/microsocks openwrt/package/lean/
+          #cp -r lede/package/lean/dns2socks openwrt/package/lean/
+          #cp -r lede/package/lean/redsocks2 openwrt/package/lean/
+          #cp -r lede/package/lean/ipt2socks openwrt/package/lean/
+          #rm -rf lede
           cd openwrt
-          echo 'src-git helloworld https://github.com/fw876/helloworld' >> feeds.conf.default
+          #echo 'src-git helloworld https://github.com/fw876/helloworld' >> feeds.conf.default
+          echo 'src-git diy1 https://github.com/xiaorouji/openwrt-passwall' >> feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
